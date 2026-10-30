@@ -2,8 +2,13 @@
  * Rich-text clipboard support.
  *
  * The preview is serialized from the live DOM with computed styles baked into
- * inline `style` attributes, because rich-text editors (Google Docs, Word,
- * Notion) ignore the page stylesheet but honour inline styles.
+ * inline attributes, because editors (Google Docs, Word, Notion) ignore the
+ * page stylesheet but honour inline styles and legacy table attributes.
+ *
+ * Math is the hard part: Microsoft Word converts MathML into native equations,
+ * while Google Docs and Notion strip `<math>` outright. So every equation is
+ * emitted as MathML *plus* a TeX text fallback that Word hides (`mso-hide:all`)
+ * and Docs/Notion keep as readable text.
  *
  * While serializing, `.copy-light` is applied to the preview root so the output
  * always uses the light palette — near-white text pasted into a white document
@@ -53,6 +58,44 @@ const INLINE_PROPS = [
 
 const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'SVG', 'NOSCRIPT', 'TEXTAREA', 'BUTTON'])
 const VOID_TAGS = new Set(['BR', 'HR', 'IMG', 'SOURCE', 'COL'])
+const BLOCK_TAGS = new Set([
+  'ADDRESS',
+  'ARTICLE',
+  'ASIDE',
+  'BLOCKQUOTE',
+  'DIV',
+  'DL',
+  'FIELDSET',
+  'FIGCAPTION',
+  'FIGURE',
+  'FOOTER',
+  'FORM',
+  'H1',
+  'H2',
+  'H3',
+  'H4',
+  'H5',
+  'H6',
+  'HEADER',
+  'HR',
+  'MAIN',
+  'NAV',
+  'OL',
+  'P',
+  'PRE',
+  'SECTION',
+  'TABLE',
+  'TR',
+  'UL',
+])
+
+/** Baseline cell styling: editors that drop CSS still need visible tables. */
+const CELL_STYLE = 'border:1px solid #d6dae4;padding:6px 10px;vertical-align:top'
+const HEADER_CELL_STYLE = `${CELL_STYLE};background-color:#f5f6fa;font-weight:bold`
+const PRE_STYLE =
+  'font-family:Consolas,"Courier New",monospace;font-size:13px;line-height:1.6;background-color:#f6f7fb;border:1px solid #e2e5ee;border-radius:6px;padding:12px;white-space:pre-wrap'
+const MATH_FALLBACK_STYLE =
+  'font-family:Consolas,"Courier New",monospace;font-size:13px;color:#3d4cbb;mso-hide:all'
 
 function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -88,16 +131,26 @@ function styleFor(el: Element): ElementStyle {
   return { style: parts.join(';'), whiteSpace }
 }
 
-/** KaTeX renders raw HTML spans; paste the original TeX instead. */
-function mathToString(el: Element): string {
+function texOf(el: Element): string {
   const annotation = el.querySelector('annotation[encoding="application/x-tex"]')
-  const tex = (annotation?.textContent ?? '').replace(/\s+/g, ' ').trim()
-  if (!tex) return ''
+  return (annotation?.textContent ?? '').replace(/\s+/g, ' ').trim()
+}
+
+/**
+ * MathML for Word, TeX text for everyone else. The fallback carries
+ * `mso-hide:all`, which Word honours and Docs/Notion ignore, so the equation is
+ * never duplicated in Word and never lost in Docs.
+ */
+function mathHtml(el: Element): string {
+  const tex = texOf(el)
+  const mathml = el.querySelector('math')?.outerHTML ?? ''
+  const fallback = tex ? `<span style="${MATH_FALLBACK_STYLE}">${escapeHtml(tex)}</span>` : ''
   const display = el.closest('.katex-display') !== null
-  const style = display
-    ? 'display:block;text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;color:#4f5fd0;padding:6px 0'
-    : 'font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;color:#4f5fd0;white-space:nowrap'
-  return `<span style="${style}">${escapeHtml(tex)}</span>`
+
+  if (display) {
+    return `<p style="margin:12px 0;text-align:center">${mathml}${fallback}</p>`
+  }
+  return `<span style="vertical-align:baseline">${mathml}${fallback}</span>`
 }
 
 function serialize(node: Node, preserveWhitespace = false): string {
@@ -114,7 +167,7 @@ function serialize(node: Node, preserveWhitespace = false): string {
   const tag = el.tagName
 
   if (SKIP_TAGS.has(tag)) return ''
-  if (el.classList.contains('katex')) return mathToString(el)
+  if (el.classList.contains('katex')) return mathHtml(el)
   if (el.getAttribute('aria-hidden') === 'true') return ''
 
   if (tag === 'INPUT') {
@@ -126,7 +179,13 @@ function serialize(node: Node, preserveWhitespace = false): string {
 
   const name = tag.toLowerCase()
   const { style, whiteSpace } = styleFor(el)
-  const styleAttr = style ? ` style="${escapeAttr(style)}"` : ''
+
+  let extra = ''
+  if (tag === 'TH') extra = `;${HEADER_CELL_STYLE}`
+  else if (tag === 'TD') extra = `;${CELL_STYLE}`
+  else if (tag === 'PRE') extra = `;${PRE_STYLE}`
+
+  const styleAttr = style || extra ? ` style="${escapeAttr(`${style}${extra}`)}"` : ''
 
   if (VOID_TAGS.has(tag)) {
     if (tag === 'IMG') {
@@ -146,7 +205,16 @@ function serialize(node: Node, preserveWhitespace = false): string {
   let inner = ''
   for (const child of Array.from(el.childNodes)) inner += serialize(child, preserve)
 
-  return `<${name}${styleAttr}>${inner}</${name}>`
+  // Legacy attributes survive sanitizers that drop CSS borders entirely.
+  if (tag === 'TABLE') {
+    const start = el.getAttribute('start')
+    return `<table border="1" cellpadding="8" cellspacing="0"${start ? ` start="${start}"` : ''}${styleAttr}>${inner}</table>`
+  }
+
+  const start = el.getAttribute('start')
+  const startAttr = tag === 'OL' && start ? ` start="${escapeAttr(start)}"` : ''
+
+  return `<${name}${startAttr}${styleAttr}>${inner}</${name}>`
 }
 
 export function buildRichHtml(root: HTMLElement): string {
@@ -155,7 +223,8 @@ export function buildRichHtml(root: HTMLElement): string {
     // Force a synchronous style recalculation so `getComputedStyle` reflects
     // the light palette before values are read.
     const computed = window.getComputedStyle(root)
-    const base = [
+    const bodyStyle = [
+      'margin:0',
       `font-family:${computed.fontFamily}`,
       `font-size:${computed.fontSize}`,
       `line-height:${computed.lineHeight}`,
@@ -165,10 +234,82 @@ export function buildRichHtml(root: HTMLElement): string {
     let body = ''
     for (const child of Array.from(root.childNodes)) body += serialize(child)
 
-    return `<div style="${escapeAttr(base)}">${body}</div>`
+    return [
+      '<!DOCTYPE html><html><head><meta charset="utf-8"></head>',
+      `<body style="${escapeAttr(bodyStyle)}">`,
+      body,
+      '</body></html>',
+    ].join('')
   } finally {
     root.classList.remove('copy-light')
   }
+}
+
+/** Plain-text flavor: real LaTeX instead of KaTeX markup or duplicated math. */
+export function buildPlainText(root: HTMLElement): string {
+  const chunks: string[] = []
+
+  const walk = (node: Node, preserve: boolean) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent ?? ''
+      chunks.push(preserve ? text : text.replace(/\s+/g, ' '))
+      return
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return
+
+    const el = node as HTMLElement
+    const tag = el.tagName
+    if (SKIP_TAGS.has(tag)) return
+
+    if (el.classList.contains('katex')) {
+      const tex = texOf(el)
+      if (tex) chunks.push(el.closest('.katex-display') ? `\n\n$$\n${tex}\n$$\n\n` : `$${tex}$`)
+      return
+    }
+
+    if (tag === 'INPUT') {
+      if (el.getAttribute('type') === 'checkbox') {
+        chunks.push((el as HTMLInputElement).checked ? '☑ ' : '☐ ')
+      }
+      return
+    }
+
+    if (tag === 'BR') {
+      chunks.push('\n')
+      return
+    }
+
+    if (tag === 'LI') {
+      const parent = el.parentElement
+      const ordered = parent?.tagName === 'OL'
+      const index = parent ? Array.prototype.indexOf.call(parent.children, el) + 1 : 1
+      let depth = 0
+      for (let p = el.parentElement; p; p = p.parentElement) {
+        if (p.tagName === 'UL' || p.tagName === 'OL') depth += 1
+      }
+      const marker = ordered ? `${index}.` : '-'
+      chunks.push(`\n${'  '.repeat(Math.max(0, depth - 1))}${marker} `)
+      for (const child of Array.from(el.childNodes)) walk(child, preserve)
+      return
+    }
+
+    const block = BLOCK_TAGS.has(tag)
+    if (block) chunks.push('\n')
+
+    const nextPreserve = preserve || tag === 'PRE'
+    for (const child of Array.from(el.childNodes)) walk(child, nextPreserve)
+
+    if (tag === 'TD' || tag === 'TH') chunks.push('\t')
+    if (block) chunks.push('\n')
+  }
+
+  for (const child of Array.from(root.childNodes)) walk(child, false)
+
+  return chunks
+    .join('')
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
 }
 
 function legacyCopy(html: string): boolean {
@@ -200,7 +341,7 @@ function legacyCopy(html: string): boolean {
 
 export async function copyRichText(root: HTMLElement): Promise<boolean> {
   const html = buildRichHtml(root)
-  const text = root.innerText.trim()
+  const text = buildPlainText(root)
 
   try {
     if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {

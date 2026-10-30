@@ -7,9 +7,11 @@ Microsoft Word or Notion without losing tables, headings, code styling or equati
 ## Features
 
 - **Live preview** rendered with `react-markdown`, `remark-gfm`, `remark-math` and `rehype-katex`.
-- **Rich-text copy** — serializes the previewed DOM with computed styles inlined, so the pasted
-  result keeps tables, blockquotes, code colours and math in editors that ignore page CSS.
-  Equations paste as their original TeX source rather than KaTeX markup.
+- **Rich-text copy** — serializes the previewed DOM with computed styles inlined plus legacy
+  table attributes (`border`, `cellpadding`), so tables, blockquotes and code survive editors
+  that ignore page CSS. Each equation is emitted as MathML (Word turns it into a native
+  equation) *and* as a TeX fallback hidden from Word via `mso-hide:all`, so Google Docs and
+  Notion still receive readable formula text. The plain-text flavor carries real LaTeX.
 - **Print / PDF** — a print stylesheet repaints the page as a single-column white document with
   page-break protection for tables, code, quotes and display math, so the browser's *Save as
   PDF* output matches the preview. Printed pages end with a `© SA7` footer.
