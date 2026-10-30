@@ -46,7 +46,7 @@ export const PreviewPane = memo(function PreviewPane({
   return (
     <section
       aria-label="Formatted preview"
-      className="preview-pane flex min-h-[46vh] flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-[var(--panel-shadow)] lg:min-h-0"
+      className="preview-pane flex min-h-[46vh] min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-[var(--panel-shadow)] lg:min-h-0"
     >
       <div className="no-print flex shrink-0 items-center justify-between gap-3 border-b border-line bg-panel-soft/70 px-3.5 py-2.5 sm:px-4">
         <div className="flex items-center gap-2">
@@ -68,11 +68,11 @@ export const PreviewPane = memo(function PreviewPane({
         )}
       </div>
 
-      <div className="preview-scroll keeper-scroll relative min-h-0 flex-1 overflow-y-auto">
+      <div className="preview-scroll keeper-scroll relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         {hasContent ? (
           <div
             key={`${generation}-${hasContent}`}
-            className="preview-body keeper-fade px-3.5 py-4 sm:px-5 sm:py-5"
+            className="preview-body keeper-fade min-w-0 max-w-full px-3.5 py-4 sm:px-5 sm:py-5"
           >
             <Suspense fallback={<PreviewSkeleton />}>
               <MarkdownView markdown={markdown} contentRef={contentRef} />

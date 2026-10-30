@@ -15,10 +15,10 @@ type HeaderProps = {
 }
 
 const ghostButton =
-  'group inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-line bg-panel px-2.5 text-[12.5px] font-medium text-muted transition-all duration-150 hover:border-line-strong hover:bg-panel-soft hover:text-ink active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50'
+  'group inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-line bg-panel px-2.5 text-[12.5px] font-medium text-muted transition-all duration-150 hover:border-line-strong hover:bg-panel-soft hover:text-ink active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 sm:h-9'
 
 const iconButton =
-  'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-panel text-muted transition-all duration-150 hover:border-line-strong hover:bg-panel-soft hover:text-ink active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50'
+  'inline-flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-panel text-muted transition-all duration-150 hover:border-line-strong hover:bg-panel-soft hover:text-ink active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 sm:h-9 sm:w-9'
 
 export function Header({
   hasContent,
@@ -50,7 +50,7 @@ export function Header({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-full items-center gap-1.5 sm:w-auto sm:gap-2">
           <button
             type="button"
             onClick={onSample}
@@ -106,7 +106,7 @@ export function Header({
             onClick={onCopy}
             disabled={!hasContent || copied}
             aria-label="Copy formatted rich text"
-            className={`inline-flex h-9 min-w-[9.25rem] items-center justify-center gap-1.5 rounded-lg px-3.5 text-[12.5px] font-semibold transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-panel ${
+            className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-[12.5px] font-semibold transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-panel sm:h-9 sm:min-w-[9.25rem] sm:flex-none sm:px-3.5 ${
               copied
                 ? 'bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-600/30 ring-inset dark:text-emerald-300 dark:ring-emerald-400/30'
                 : failed
@@ -120,7 +120,16 @@ export function Header({
               <Clipboard className="h-[15px] w-[15px]" aria-hidden="true" />
             )}
             <span className="truncate">
-              {copied ? 'Copied!' : failed ? 'Copy failed' : 'Copy Formatted'}
+              {copied ? (
+                'Copied!'
+              ) : failed ? (
+                'Copy failed'
+              ) : (
+                <>
+                  <span className="sm:hidden">Copy</span>
+                  <span className="hidden sm:inline">Copy Formatted</span>
+                </>
+              )}
             </span>
           </button>
         </div>

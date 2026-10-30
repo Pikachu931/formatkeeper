@@ -11,7 +11,7 @@ export function EditorPane({ value, onChange, charCount, wordCount }: EditorPane
   return (
     <section
       aria-label="Markdown input"
-      className="editor-pane no-print flex min-h-[44vh] flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-[var(--panel-shadow)] transition-[border-color,box-shadow] duration-200 focus-within:border-[color-mix(in_srgb,var(--accent)_45%,var(--line))] focus-within:ring-1 focus-within:ring-[color-mix(in_srgb,var(--accent)_35%,transparent)] lg:min-h-0"
+      className="editor-pane no-print flex min-h-[44vh] min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-[var(--panel-shadow)] transition-[border-color,box-shadow] duration-200 focus-within:border-[color-mix(in_srgb,var(--accent)_45%,var(--line))] focus-within:ring-1 focus-within:ring-[color-mix(in_srgb,var(--accent)_35%,transparent)] lg:min-h-0"
     >
       <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line bg-panel-soft/70 px-3.5 py-2.5 sm:px-4">
         <div className="flex items-center gap-2">

@@ -363,10 +363,14 @@
 /* Tables */
 .md-table-wrap {
   margin: 1.15em 0;
+  max-width: 100%;
   overflow-x: auto;
+  overflow-y: hidden;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--panel);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .md-body table {
@@ -525,17 +529,71 @@
 
 .md-body .katex-display {
   margin: 1em 0;
+  max-width: 100%;
   padding: 0.2em 0;
   overflow-x: auto;
   overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
+/* KaTeX positions numerators, bars, radicals and operators relative to each
+   other. `white-space: normal` let narrow screens break a formula in the
+   middle of a fraction, so wide equations scroll instead of tearing apart. */
 .md-body .katex-display > .katex {
-  white-space: normal;
+  white-space: nowrap;
 }
 
 .md-body .katex-error {
   color: #f87171;
+}
+
+/* ---------------------------------------------------------------------------
+   Small screens
+   Wide tables, equations and code stay inside their own scroll containers
+   instead of widening the page, and type is tightened so more fits.
+--------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .md-body {
+    font-size: 0.9rem;
+    line-height: 1.68;
+  }
+
+  .md-body h1 {
+    font-size: 1.45rem;
+  }
+
+  .md-body h2 {
+    font-size: 1.14rem;
+  }
+
+  .md-body h3 {
+    font-size: 1.02rem;
+  }
+
+  .md-body pre {
+    padding: 0.8rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.765rem;
+  }
+
+  .md-body th,
+  .md-body td {
+    padding: 0.5em 0.7em;
+    font-size: 0.92em;
+  }
+
+  /* On a phone, a 100%-wide table squeezes six columns into slivers. Sizing
+     columns to their content keeps cells readable and lets the wrapper scroll
+     horizontally; desktop tables keep wrapping at full width. */
+  .md-body table {
+    width: max-content;
+    min-width: 100%;
+  }
+
+  .md-body .katex-display {
+    margin: 0.85em 0;
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -545,7 +603,9 @@
 --------------------------------------------------------------------------- */
 @media print {
   @page {
-    margin: 16mm 14mm;
+    /* Word and Google Docs default to roughly 25mm (1in); 18mm tracks that
+       while leaving room for the browser's own header and footer. */
+    margin: 18mm 18mm 20mm;
   }
 
   html,
@@ -635,6 +695,8 @@
     border-top: 1px solid var(--line);
     font-size: 9pt;
     color: #6b7280;
+    break-inside: avoid;
+    break-before: avoid;
   }
 
   .md-body {
@@ -668,23 +730,31 @@
     widows: 3;
   }
 
-  .md-body pre,
   .md-body blockquote,
-  .md-body .md-table-wrap,
-  .md-body .katex-display,
   .md-body img,
-  .md-body tr {
+  .md-body tr,
+  .md-body .katex-display {
     break-inside: avoid;
   }
 
+  /* Long code blocks and tables must be allowed to flow onto the next page.
+     `break-inside: avoid` on them pushed whole blocks down and left large
+     blank areas at the bottom of a page — the "bad page margin" look. */
   .md-body pre {
     overflow: visible !important;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
+    break-inside: auto;
   }
 
   .md-body .md-table-wrap {
     overflow: visible !important;
+    break-inside: auto;
+  }
+
+  .md-body table {
+    width: 100%;
+    min-width: 0;
   }
 
   .md-body thead {
