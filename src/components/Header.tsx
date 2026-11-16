@@ -15,10 +15,10 @@ type HeaderProps = {
 }
 
 const ghostButton =
-  'group inline-flex h-10 items-center justify-center gap-1.5 rounded-md px-2.5 text-[12.5px] font-medium text-muted transition-colors duration-150 hover:bg-panel-soft hover:text-ink disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 sm:h-9'
+  'group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-2.5 text-[12.5px] font-normal tracking-[0.01em] text-muted transition-colors duration-200 hover:bg-panel-soft hover:text-ink disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/50 sm:h-9'
 
 const iconButton =
-  'inline-flex h-10 w-10 items-center justify-center rounded-md text-muted transition-colors duration-150 hover:bg-panel-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 sm:h-9 sm:w-9'
+  'inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted transition-colors duration-200 hover:bg-panel-soft hover:text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/50 sm:h-9 sm:w-9'
 
 export function Header({
   hasContent,
@@ -34,16 +34,14 @@ export function Header({
   const failed = copyState === 'error'
 
   return (
-    <header className="no-print relative z-10 shrink-0 border-b border-line/80">
-      <div className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 items-center gap-2">
-          <Layers className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.9} aria-hidden="true" />
-          <h1 className="truncate text-[14px] font-semibold tracking-[-0.01em] text-ink">
-            FormatKeeper
-          </h1>
+    <header className="no-print relative z-10 shrink-0">
+      <div className="mx-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-6 py-3 sm:px-8">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Layers className="h-[18px] w-[18px] shrink-0 text-ink" strokeWidth={1.5} aria-hidden="true" />
+          <h1 className="display-face truncate text-[19px] leading-none text-ink">FormatKeeper</h1>
         </div>
 
-        <div className="flex w-full items-center gap-0.5 sm:w-auto sm:gap-1">
+        <div className="flex w-full items-center gap-1 sm:w-auto">
           <button
             type="button"
             onClick={onSample}
@@ -51,7 +49,7 @@ export function Header({
             title="Load sample content"
             className={ghostButton}
           >
-            <Sparkles className="h-[14px] w-[14px]" aria-hidden="true" />
+            <Sparkles className="h-[14px] w-[14px]" strokeWidth={1.6} aria-hidden="true" />
             <span className="hidden sm:inline">Try Sample</span>
           </button>
 
@@ -63,7 +61,7 @@ export function Header({
             title="Clear editor"
             className={ghostButton}
           >
-            <Trash2 className="h-[14px] w-[14px]" aria-hidden="true" />
+            <Trash2 className="h-[14px] w-[14px]" strokeWidth={1.6} aria-hidden="true" />
             <span className="hidden sm:inline">Clear</span>
           </button>
 
@@ -75,7 +73,7 @@ export function Header({
             title="Print or save as PDF"
             className={ghostButton}
           >
-            <Printer className="h-[14px] w-[14px]" aria-hidden="true" />
+            <Printer className="h-[14px] w-[14px]" strokeWidth={1.6} aria-hidden="true" />
             <span className="hidden sm:inline">Print / PDF</span>
           </button>
 
@@ -87,9 +85,9 @@ export function Header({
             className={iconButton}
           >
             {theme === 'dark' ? (
-              <Sun className="h-4 w-4" aria-hidden="true" />
+              <Sun className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
             ) : (
-              <Moon className="h-4 w-4" aria-hidden="true" />
+              <Moon className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
             )}
           </button>
 
@@ -98,30 +96,21 @@ export function Header({
             onClick={onCopy}
             disabled={!hasContent || copied}
             aria-label="Copy formatted rich text"
-            className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md px-3 text-[12.5px] font-semibold transition-colors duration-150 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 sm:h-9 sm:min-w-[9rem] sm:flex-none ${
+            className={`btn-primary inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3.5 text-[12.5px] font-medium tracking-[0.01em] transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/60 sm:h-9 sm:flex-none ${
               copied
-                ? 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300'
+                ? 'bg-emerald-500/12! text-emerald-700! dark:text-emerald-300!'
                 : failed
-                  ? 'bg-rose-500/12 text-rose-700 dark:text-rose-300'
-                  : 'bg-ink text-panel hover:opacity-90 disabled:opacity-35'
+                  ? 'bg-rose-500/12! text-rose-700! dark:text-rose-300!'
+                  : ''
             }`}
           >
             {copied ? (
-              <Check className="h-[15px] w-[15px]" strokeWidth={2.4} aria-hidden="true" />
+              <Check className="h-[15px] w-[15px]" strokeWidth={2.2} aria-hidden="true" />
             ) : (
-              <Clipboard className="h-[15px] w-[15px]" aria-hidden="true" />
+              <Clipboard className="h-[15px] w-[15px]" strokeWidth={1.7} aria-hidden="true" />
             )}
             <span className="truncate">
-              {copied ? (
-                'Copied!'
-              ) : failed ? (
-                'Copy failed'
-              ) : (
-                <>
-                  <span className="sm:hidden">Copy</span>
-                  <span className="hidden sm:inline">Copy Formatted</span>
-                </>
-              )}
+              {copied ? 'Copied!' : failed ? 'Copy failed' : 'Copy Formatted'}
             </span>
           </button>
         </div>

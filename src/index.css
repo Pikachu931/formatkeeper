@@ -8,7 +8,86 @@
    the preview while serializing it for the clipboard so pasted content always
    lands on a light, document-friendly palette.
 --------------------------------------------------------------------------- */
-:root,
+:root {
+  color-scheme: light;
+
+  --canvas: #f1ece4;
+  --panel: rgb(255 255 255 / 0.55);
+  --panel-soft: rgb(255 255 255 / 0.42);
+  --line: rgb(38 33 54 / 0.12);
+  --line-strong: rgb(38 33 54 / 0.2);
+  --ink: #232030;
+  --muted: #5c5769;
+  --faint: #8b8497;
+  --accent: #6d5fa6;
+  --accent-strong: #584a94;
+  --code-bg: rgb(255 255 255 / 0.62);
+  --code-ink: #2a2735;
+  --scroll-thumb: rgb(38 33 54 / 0.18);
+  --scroll-thumb-hover: rgb(38 33 54 / 0.3);
+
+  --surface-base: #f1ece4;
+  --surface-glow: radial-gradient(58rem 32rem at 88% 108%, rgb(206 176 214 / 0.4), transparent 62%);
+  --surface-sheen: radial-gradient(46rem 28rem at 10% -8%, rgb(255 255 255 / 0.72), transparent 70%);
+  --weave-a: rgb(255 255 255 / 0.55);
+  --weave-b: rgb(46 40 60 / 0.045);
+  --grain-opacity: 0.32;
+  --panel-fill: linear-gradient(158deg, rgb(255 255 255 / 0.64), rgb(255 255 255 / 0.34) 55%, rgb(255 255 255 / 0.5));
+  --panel-border: rgb(255 255 255 / 0.72);
+  --panel-inset: inset 0 1px 0 rgb(255 255 255 / 0.8);
+  --panel-shadow: 0 28px 64px -48px rgb(43 36 62 / 0.55);
+  --divider: rgb(42 36 58 / 0.18);
+
+  --tok-keyword: #8b34c7;
+  --tok-string: #1c7a4c;
+  --tok-number: #b25218;
+  --tok-comment: #8d94a6;
+  --tok-title: #1f5cbe;
+  --tok-attr: #8a5a12;
+  --tok-literal: #a52b6b;
+}
+
+.dark {
+  color-scheme: dark;
+
+  --canvas: #1a1c2d;
+  --panel: rgb(255 255 255 / 0.035);
+  --panel-soft: rgb(255 255 255 / 0.06);
+  --line: rgb(228 224 240 / 0.1);
+  --line-strong: rgb(228 224 240 / 0.2);
+  --ink: #eae6f1;
+  --muted: #a8a3b8;
+  --faint: #7d788d;
+  --accent: #c5b4e2;
+  --accent-strong: #d8c9ee;
+  --code-bg: rgb(8 9 16 / 0.34);
+  --code-ink: #d8d4e4;
+  --scroll-thumb: rgb(255 255 255 / 0.14);
+  --scroll-thumb-hover: rgb(255 255 255 / 0.24);
+
+  --surface-base: #1b1d2e;
+  --surface-glow: radial-gradient(62rem 34rem at 86% 106%, rgb(208 168 216 / 0.2), transparent 62%);
+  --surface-sheen: radial-gradient(48rem 28rem at 8% -10%, rgb(148 158 214 / 0.12), transparent 70%);
+  --weave-a: rgb(255 255 255 / 0.024);
+  --weave-b: rgb(0 0 0 / 0.16);
+  --grain-opacity: 0.55;
+  --panel-fill: linear-gradient(158deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.014) 55%, rgb(255 255 255 / 0.03));
+  --panel-border: rgb(255 255 255 / 0.08);
+  --panel-inset: inset 0 1px 0 rgb(255 255 255 / 0.05);
+  --panel-shadow: 0 34px 80px -60px rgb(0 0 0 / 0.9);
+  --divider: rgb(238 234 247 / 0.2);
+
+  --tok-keyword: #b892f9;
+  --tok-string: #8ed69c;
+  --tok-number: #f0aa7c;
+  --tok-comment: #5e687f;
+  --tok-title: #82b6ff;
+  --tok-attr: #e5c07b;
+  --tok-literal: #e58fb5;
+}
+
+/* Opaque document palette, applied to the preview root while clipboard HTML is
+   serialized. The UI's translucent glass must never leak into pasted output. */
 .copy-light {
   color-scheme: light;
 
@@ -24,8 +103,6 @@
   --accent-strong: #3d4cbb;
   --code-bg: #f6f7fb;
   --code-ink: #2c3140;
-  --scroll-thumb: #ccd1dd;
-  --scroll-thumb-hover: #aeb5c6;
 
   --tok-keyword: #8b34c7;
   --tok-string: #1c7a4c;
@@ -36,36 +113,10 @@
   --tok-literal: #a52b6b;
 }
 
-.dark {
-  color-scheme: dark;
-
-  --canvas: #090a0f;
-  --panel: #0c0e14;
-  --panel-soft: #10131b;
-  --line: #1c2029;
-  --line-strong: #2b3142;
-  --ink: #e8eaf2;
-  --muted: #8b93a8;
-  --faint: #5c6477;
-  --accent: #94a3ff;
-  --accent-strong: #7d8cff;
-  --code-bg: #080a10;
-  --code-ink: #c9d2e6;
-  --scroll-thumb: #262c3a;
-  --scroll-thumb-hover: #3a4256;
-
-  --tok-keyword: #b892f9;
-  --tok-string: #8ed69c;
-  --tok-number: #f0aa7c;
-  --tok-comment: #5e687f;
-  --tok-title: #82b6ff;
-  --tok-attr: #e5c07b;
-  --tok-literal: #e58fb5;
-}
-
 @theme inline {
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-display: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
 
   --color-canvas: var(--canvas);
   --color-panel: var(--panel);
@@ -106,8 +157,71 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Chrome
+   Surface, glass panels and display type
+   The background is a layered weave: two broad light washes, three repeating
+   thread gradients and an SVG grain overlay, so the surface reads as textile
+   rather than flat colour.
 --------------------------------------------------------------------------- */
+.app-surface {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--surface-base);
+  background-image:
+    var(--surface-glow),
+    var(--surface-sheen),
+    repeating-linear-gradient(0deg, var(--weave-a) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, var(--weave-a) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(135deg, var(--weave-b) 0 1px, transparent 1px 4px);
+  background-attachment: fixed;
+}
+
+.app-surface::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  mix-blend-mode: soft-light;
+}
+
+.display-face {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.premium-panel {
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  background-image: var(--panel-fill);
+  box-shadow: var(--panel-inset), var(--panel-shadow);
+  backdrop-filter: blur(18px) saturate(112%);
+  -webkit-backdrop-filter: blur(18px) saturate(112%);
+}
+
+.pane-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    var(--divider),
+    color-mix(in srgb, var(--divider) 45%, transparent) 76%,
+    transparent
+  );
+}
+
+.btn-primary {
+  border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+  background-color: color-mix(in srgb, var(--ink) 9%, transparent);
+  color: var(--ink);
+}
+
+.btn-primary:hover {
+  background-color: color-mix(in srgb, var(--ink) 15%, transparent);
+}
+
 .keeper-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--scroll-thumb) transparent;
@@ -149,7 +263,9 @@
 }
 
 .keeper-editor::placeholder {
-  color: color-mix(in srgb, var(--faint) 88%, transparent);
+  color: color-mix(in srgb, var(--faint) 92%, transparent);
+  font-family: var(--font-sans);
+  font-size: 13px;
 }
 
 /* ---------------------------------------------------------------------------
@@ -623,6 +739,28 @@
     min-height: 0 !important;
     overflow: visible !important;
     background: #fff !important;
+    background-image: none !important;
+  }
+
+  .app-surface::before,
+  .premium-panel {
+    background-image: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .app-surface::before {
+    display: none !important;
+  }
+
+  .pane-divider {
+    background: #d9dce5 !important;
+  }
+
+  .btn-primary {
+    border-color: #d9dce5 !important;
+    background: #fff !important;
   }
 
   main {
@@ -644,7 +782,10 @@
     border: 0 !important;
     border-radius: 0 !important;
     background: #fff !important;
+    background-image: none !important;
     box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   .preview-scroll {
