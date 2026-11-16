@@ -26,7 +26,6 @@
   --code-ink: #2c3140;
   --scroll-thumb: #ccd1dd;
   --scroll-thumb-hover: #aeb5c6;
-  --panel-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 18px 40px -28px rgb(15 23 42 / 0.24);
 
   --tok-keyword: #8b34c7;
   --tok-string: #1c7a4c;
@@ -54,7 +53,6 @@
   --code-ink: #c9d2e6;
   --scroll-thumb: #262c3a;
   --scroll-thumb-hover: #3a4256;
-  --panel-shadow: 0 1px 0 rgb(255 255 255 / 0.03) inset, 0 30px 70px -40px #000;
 
   --tok-keyword: #b892f9;
   --tok-string: #8ed69c;
@@ -110,20 +108,6 @@
 /* ---------------------------------------------------------------------------
    Chrome
 --------------------------------------------------------------------------- */
-.app-glow {
-  background:
-    radial-gradient(58rem 22rem at 22% -8rem, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
-    radial-gradient(40rem 18rem at 88% -10rem, color-mix(in srgb, #34d399 7%, transparent), transparent 72%);
-}
-
-.brand-badge {
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--accent) 30%, transparent), color-mix(in srgb, var(--accent) 6%, transparent)),
-    var(--panel);
-  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--line));
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 7%, transparent);
-}
-
 .keeper-scroll {
   scrollbar-width: thin;
   scrollbar-color: var(--scroll-thumb) transparent;
@@ -338,11 +322,9 @@
 
 .md-body blockquote {
   margin: 1.1em 0;
-  padding: 0.55em 1em;
-  border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
-  border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-  color: color-mix(in srgb, var(--ink) 88%, var(--muted));
+  padding: 0.15em 0 0.15em 1em;
+  border-left: 2px solid var(--line-strong);
+  color: var(--muted);
 }
 
 .md-body blockquote > :first-child {
@@ -357,7 +339,7 @@
   height: 1px;
   margin: 1.9em 0;
   border: 0;
-  background: linear-gradient(90deg, var(--line-strong), transparent);
+  background: var(--line);
 }
 
 /* Tables */
@@ -367,8 +349,7 @@
   overflow-x: auto;
   overflow-y: hidden;
   border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--panel);
+  border-radius: 10px;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
 }
@@ -402,14 +383,6 @@
 
 .md-body tbody tr:last-child td {
   border-bottom: 0;
-}
-
-.md-body tbody tr:nth-child(even) td {
-  background: color-mix(in srgb, var(--panel-soft) 78%, transparent);
-}
-
-.md-body tbody tr:hover td {
-  background: color-mix(in srgb, var(--accent) 6%, var(--panel-soft));
 }
 
 /* Code */
@@ -603,9 +576,9 @@
 --------------------------------------------------------------------------- */
 @media print {
   @page {
-    /* Word and Google Docs default to roughly 25mm (1in); 18mm tracks that
-       while leaving room for the browser's own header and footer. */
-    margin: 18mm 18mm 20mm;
+    /* Match the 1in (25.4mm) default of Word and Google Docs, so "Save as PDF"
+       produces the same text block and margins as a normal document. */
+    margin: 25mm;
   }
 
   html,

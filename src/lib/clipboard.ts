@@ -41,7 +41,9 @@ const INLINE_PROPS = [
   'padding-bottom',
   'padding-left',
   'margin-top',
+  'margin-right',
   'margin-bottom',
+  'margin-left',
   'border-top-width',
   'border-top-style',
   'border-top-color',
@@ -91,11 +93,13 @@ const BLOCK_TAGS = new Set([
 
 /** Baseline cell styling: editors that drop CSS still need visible tables. */
 const CELL_STYLE = 'border:1px solid #d6dae4;padding:6px 10px;vertical-align:top'
-const HEADER_CELL_STYLE = `${CELL_STYLE};background-color:#f5f6fa;font-weight:bold`
+const HEADER_CELL_STYLE = `${CELL_STYLE};background-color:#f5f6fa;font-weight:600`
+const TABLE_STYLE = 'width:100%;border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt'
 const PRE_STYLE =
   'font-family:Consolas,"Courier New",monospace;font-size:13px;line-height:1.6;background-color:#f6f7fb;border:1px solid #e2e5ee;border-radius:6px;padding:12px;white-space:pre-wrap'
 const MATH_FALLBACK_STYLE =
   'font-family:Consolas,"Courier New",monospace;font-size:13px;color:#3d4cbb;mso-hide:all'
+const RULE_STYLE = 'border:0;border-top:1px solid #d6dae4;margin:20px 0'
 
 function escapeHtml(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -109,11 +113,19 @@ function isTransparent(value: string): boolean {
   return value === 'transparent' || value === 'rgba(0, 0, 0, 0)' || value === 'hsla(0, 0%, 0%, 0)'
 }
 
+/** Drops one declaration so a forced value appended afterwards is the only one. */
+function withoutProp(style: string, prop: string): string {
+  return style
+    .split(';')
+    .filter((declaration) => declaration && !declaration.startsWith(`${prop}:`))
+    .join(';')
+}
+
 type ElementStyle = { style: string; whiteSpace: string }
 
 function styleFor(el: Element): ElementStyle {
   const computed = window.getComputedStyle(el)
-  const parts: string[] = []
+  const values = new Map<string, string>()
   const whiteSpace = computed.getPropertyValue('white-space').trim()
 
   for (const prop of INLINE_PROPS) {
@@ -122,13 +134,21 @@ function styleFor(el: Element): ElementStyle {
     if (prop === 'background-color' && isTransparent(value)) continue
     if (prop === 'border-radius' && value === '0px') continue
     if (prop === 'text-decoration-line' && value === 'none') continue
+    if (prop === 'font-variant' && value === 'normal') continue
     if (prop.endsWith('-width') && value === '0px') continue
     if (prop.endsWith('-style') && value === 'none') continue
     if ((prop.startsWith('padding-') || prop.startsWith('margin-')) && value === '0px') continue
-    parts.push(`${prop}:${value}`)
+
+    // Google Docs honours the `text-decoration` shorthand more reliably than
+    // the longhands, so both are emitted for links and underlined text.
+    if (prop === 'text-decoration-line') values.set('text-decoration', value)
+    values.set(prop, value)
   }
 
-  return { style: parts.join(';'), whiteSpace }
+  return {
+    style: Array.from(values, ([prop, value]) => `${prop}:${value}`).join(';'),
+    whiteSpace,
+  }
 }
 
 function texOf(el: Element): string {
@@ -177,21 +197,31 @@ function serialize(node: Node, preserveWhitespace = false): string {
     return ''
   }
 
+  // `hr` is usually painted with a background gradient on screen; Docs and Word
+  // drop that, so the rule is emitted as a real top border instead.
+  if (tag === 'HR') return `<hr style="${RULE_STYLE}">`
+
   const name = tag.toLowerCase()
   const { style, whiteSpace } = styleFor(el)
 
+  let baseStyle = style
   let extra = ''
   if (tag === 'TH') extra = `;${HEADER_CELL_STYLE}`
   else if (tag === 'TD') extra = `;${CELL_STYLE}`
-  else if (tag === 'PRE') extra = `;${PRE_STYLE}`
+  else if (tag === 'TABLE') extra = `;${TABLE_STYLE}`
+  else if (tag === 'PRE') {
+    baseStyle = withoutProp(style, 'white-space')
+    extra = `;${PRE_STYLE}`
+  }
 
-  const styleAttr = style || extra ? ` style="${escapeAttr(`${style}${extra}`)}"` : ''
+  const styleAttr = baseStyle || extra ? ` style="${escapeAttr(`${baseStyle}${extra}`)}"` : ''
 
   if (VOID_TAGS.has(tag)) {
     if (tag === 'IMG') {
       const src = el.getAttribute('src') ?? ''
       const alt = el.getAttribute('alt') ?? ''
-      return `<img src="${escapeAttr(src)}" alt="${escapeAttr(alt)}"${styleAttr}>`
+      const imgStyle = `${baseStyle};max-width:100%;height:auto`
+      return `<img src="${escapeAttr(src)}" alt="${escapeAttr(alt)}" style="${escapeAttr(imgStyle)}">`
     }
     return `<${name}${styleAttr}>`
   }
@@ -202,13 +232,29 @@ function serialize(node: Node, preserveWhitespace = false): string {
     tag === 'CODE' ||
     /^(pre|break-spaces)/.test(whiteSpace)
 
+  // Loose markdown lists wrap their text in a single <p>. Keeping that wrapper
+  // makes Docs treat the line as a paragraph instead of a list item, so it is
+  // unwrapped while nested lists keep their own structure.
+  let children = Array.from(el.childNodes)
+  if (tag === 'LI') {
+    const ownBlocks = Array.from(el.children).filter(
+      (child) => child.tagName !== 'UL' && child.tagName !== 'OL',
+    )
+    if (ownBlocks.length === 1 && ownBlocks[0].tagName === 'P') {
+      const paragraph = ownBlocks[0]
+      const strayText = children.every(
+        (child) => child === paragraph || (child.nodeType === Node.TEXT_NODE && !child.textContent?.trim()),
+      )
+      if (strayText) children = Array.from(paragraph.childNodes)
+    }
+  }
+
   let inner = ''
-  for (const child of Array.from(el.childNodes)) inner += serialize(child, preserve)
+  for (const child of children) inner += serialize(child, preserve)
 
   // Legacy attributes survive sanitizers that drop CSS borders entirely.
   if (tag === 'TABLE') {
-    const start = el.getAttribute('start')
-    return `<table border="1" cellpadding="8" cellspacing="0"${start ? ` start="${start}"` : ''}${styleAttr}>${inner}</table>`
+    return `<table border="1" cellpadding="8" cellspacing="0" width="100%"${styleAttr}>${inner}</table>`
   }
 
   const start = el.getAttribute('start')
@@ -236,9 +282,9 @@ export function buildRichHtml(root: HTMLElement): string {
 
     return [
       '<!DOCTYPE html><html><head><meta charset="utf-8"></head>',
-      `<body style="${escapeAttr(bodyStyle)}">`,
+      `<body style="${escapeAttr(bodyStyle)}"><!--StartFragment-->`,
       body,
-      '</body></html>',
+      '<!--EndFragment--></body></html>',
     ].join('')
   } finally {
     root.classList.remove('copy-light')
@@ -276,6 +322,11 @@ export function buildPlainText(root: HTMLElement): string {
 
     if (tag === 'BR') {
       chunks.push('\n')
+      return
+    }
+
+    if (tag === 'HR') {
+      chunks.push('\n---\n')
       return
     }
 
@@ -317,7 +368,7 @@ function legacyCopy(html: string): boolean {
   holder.contentEditable = 'true'
   holder.innerHTML = html
   holder.style.cssText =
-    'position:fixed;top:0;left:-9999px;opacity:0;white-space:pre-wrap;pointer-events:none'
+    'position:fixed;top:0;left:-9999px;opacity:0;pointer-events:none'
   document.body.appendChild(holder)
 
   const selection = window.getSelection()

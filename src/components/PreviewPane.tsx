@@ -46,33 +46,18 @@ export const PreviewPane = memo(function PreviewPane({
   return (
     <section
       aria-label="Formatted preview"
-      className="preview-pane flex min-h-[46vh] min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-[var(--panel-shadow)] lg:min-h-0"
+      className="preview-pane flex min-h-[46vh] min-w-0 flex-col overflow-hidden rounded-xl border border-line bg-panel lg:min-h-0"
     >
-      <div className="no-print flex shrink-0 items-center justify-between gap-3 border-b border-line bg-panel-soft/70 px-3.5 py-2.5 sm:px-4">
-        <div className="flex items-center gap-2">
-          <Eye className="h-[13px] w-[13px] text-accent-strong" aria-hidden="true" />
-          <h2 className="text-[10.5px] font-semibold tracking-[0.16em] text-muted uppercase">
-            Preview
-          </h2>
-        </div>
-        {hasContent ? (
-          <span className="flex items-center gap-1.5 text-[10.5px] font-medium tracking-wide text-faint uppercase">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            </span>
-            Live
-          </span>
-        ) : (
-          <span className="text-[10.5px] tracking-wide text-faint uppercase">Rich text</span>
-        )}
+      <div className="no-print flex shrink-0 items-center gap-2 border-b border-line px-4 py-2">
+        <Eye className="h-[13px] w-[13px] text-faint" aria-hidden="true" />
+        <h2 className="text-[12.5px] font-medium text-muted">Preview</h2>
       </div>
 
       <div className="preview-scroll keeper-scroll relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         {hasContent ? (
           <div
             key={`${generation}-${hasContent}`}
-            className="preview-body keeper-fade min-w-0 max-w-full px-3.5 py-4 sm:px-5 sm:py-5"
+            className="preview-body keeper-fade min-w-0 max-w-full px-4 py-5 sm:px-6 sm:py-6"
           >
             <Suspense fallback={<PreviewSkeleton />}>
               <MarkdownView markdown={markdown} contentRef={contentRef} />
@@ -80,15 +65,9 @@ export const PreviewPane = memo(function PreviewPane({
           </div>
         ) : (
           <div className="preview-empty keeper-fade flex h-full min-h-[220px] flex-col items-center justify-center px-6 py-10 text-center">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl border border-line bg-panel-soft shadow-[var(--panel-shadow)]">
-              <FileText className="h-5 w-5 text-faint" aria-hidden="true" />
-            </div>
-            <p className="mt-4 text-[13px] font-medium text-muted">
+            <FileText className="h-5 w-5 text-faint" aria-hidden="true" />
+            <p className="mt-3 text-[13px] text-muted">
               Your formatted preview will appear here
-            </p>
-            <p className="mt-1.5 max-w-[17rem] text-[11.5px] leading-relaxed text-faint">
-              Paste on the left, or load the sample to see tables, code blocks and equations
-              render live.
             </p>
           </div>
         )}

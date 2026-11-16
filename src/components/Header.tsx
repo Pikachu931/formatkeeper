@@ -15,10 +15,10 @@ type HeaderProps = {
 }
 
 const ghostButton =
-  'group inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-line bg-panel px-2.5 text-[12.5px] font-medium text-muted transition-all duration-150 hover:border-line-strong hover:bg-panel-soft hover:text-ink active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 sm:h-9'
+  'group inline-flex h-10 items-center justify-center gap-1.5 rounded-md px-2.5 text-[12.5px] font-medium text-muted transition-colors duration-150 hover:bg-panel-soft hover:text-ink disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 sm:h-9'
 
 const iconButton =
-  'inline-flex h-10 w-10 items-center justify-center rounded-lg border border-line bg-panel text-muted transition-all duration-150 hover:border-line-strong hover:bg-panel-soft hover:text-ink active:scale-[0.94] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 sm:h-9 sm:w-9'
+  'inline-flex h-10 w-10 items-center justify-center rounded-md text-muted transition-colors duration-150 hover:bg-panel-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 sm:h-9 sm:w-9'
 
 export function Header({
   hasContent,
@@ -34,33 +34,24 @@ export function Header({
   const failed = copyState === 'error'
 
   return (
-    <header className="no-print relative z-10 shrink-0 border-b border-line/90 bg-panel/70 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center justify-between gap-x-4 gap-y-3 px-3 py-3 sm:px-5 lg:px-7">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="brand-badge grid h-10 w-10 shrink-0 place-items-center rounded-xl">
-            <Layers className="h-5 w-5 text-accent-strong" strokeWidth={2.1} aria-hidden="true" />
-          </div>
-          <div className="min-w-0 leading-tight">
-            <h1 className="truncate text-[15.5px] font-semibold tracking-[-0.015em] text-ink">
-              FormatKeeper
-            </h1>
-            <p className="mt-0.5 truncate text-[11.5px] text-muted sm:text-[12px]">
-              Preserve equations, tables &amp; formatting
-            </p>
-          </div>
+    <header className="no-print relative z-10 shrink-0 border-b border-line/80">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-2">
+          <Layers className="h-4 w-4 shrink-0 text-muted" strokeWidth={1.9} aria-hidden="true" />
+          <h1 className="truncate text-[14px] font-semibold tracking-[-0.01em] text-ink">
+            FormatKeeper
+          </h1>
         </div>
 
-        <div className="flex w-full items-center gap-1.5 sm:w-auto sm:gap-2">
+        <div className="flex w-full items-center gap-0.5 sm:w-auto sm:gap-1">
           <button
             type="button"
             onClick={onSample}
             aria-label="Load sample content"
-            className={`${ghostButton} px-2.5 sm:px-3`}
+            title="Load sample content"
+            className={ghostButton}
           >
-            <Sparkles
-              className="h-[14px] w-[14px] text-accent-strong transition-transform duration-300 group-hover:rotate-12"
-              aria-hidden="true"
-            />
+            <Sparkles className="h-[14px] w-[14px]" aria-hidden="true" />
             <span className="hidden sm:inline">Try Sample</span>
           </button>
 
@@ -69,7 +60,8 @@ export function Header({
             onClick={onClear}
             disabled={!hasContent}
             aria-label="Clear editor"
-            className={`${ghostButton} px-2.5 sm:px-3`}
+            title="Clear editor"
+            className={ghostButton}
           >
             <Trash2 className="h-[14px] w-[14px]" aria-hidden="true" />
             <span className="hidden sm:inline">Clear</span>
@@ -81,7 +73,7 @@ export function Header({
             disabled={!hasContent}
             aria-label="Print or save as PDF"
             title="Print or save as PDF"
-            className={`${ghostButton} px-2.5 sm:px-3`}
+            className={ghostButton}
           >
             <Printer className="h-[14px] w-[14px]" aria-hidden="true" />
             <span className="hidden sm:inline">Print / PDF</span>
@@ -106,16 +98,16 @@ export function Header({
             onClick={onCopy}
             disabled={!hasContent || copied}
             aria-label="Copy formatted rich text"
-            className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-lg px-3 text-[12.5px] font-semibold transition-all duration-150 active:scale-[0.97] disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-panel sm:h-9 sm:min-w-[9.25rem] sm:flex-none sm:px-3.5 ${
+            className={`inline-flex h-10 min-w-0 flex-1 items-center justify-center gap-1.5 rounded-md px-3 text-[12.5px] font-semibold transition-colors duration-150 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 sm:h-9 sm:min-w-[9rem] sm:flex-none ${
               copied
-                ? 'bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-600/30 ring-inset dark:text-emerald-300 dark:ring-emerald-400/30'
+                ? 'bg-emerald-500/12 text-emerald-700 dark:text-emerald-300'
                 : failed
-                  ? 'bg-rose-500/12 text-rose-700 ring-1 ring-rose-600/30 ring-inset dark:text-rose-300 dark:ring-rose-400/30'
-                  : 'bg-ink text-panel shadow-[0_1px_2px_rgb(0_0_0/0.18)] hover:opacity-90 focus-visible:ring-accent/60 disabled:opacity-40'
+                  ? 'bg-rose-500/12 text-rose-700 dark:text-rose-300'
+                  : 'bg-ink text-panel hover:opacity-90 disabled:opacity-35'
             }`}
           >
             {copied ? (
-              <Check className="h-[15px] w-[15px]" strokeWidth={2.6} aria-hidden="true" />
+              <Check className="h-[15px] w-[15px]" strokeWidth={2.4} aria-hidden="true" />
             ) : (
               <Clipboard className="h-[15px] w-[15px]" aria-hidden="true" />
             )}

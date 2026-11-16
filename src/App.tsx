@@ -70,8 +70,6 @@ export default function App() {
 
   return (
     <div className="app-root relative flex min-h-[100dvh] flex-col bg-canvas text-ink lg:h-[100dvh] lg:overflow-hidden">
-      <div aria-hidden="true" className="app-glow pointer-events-none absolute inset-x-0 top-0 h-[26rem]" />
-
       <Header
         hasContent={hasContent}
         copyState={copyState}
@@ -83,8 +81,8 @@ export default function App() {
         onPrint={handlePrint}
       />
 
-      <main className="relative flex min-h-0 flex-1 flex-col px-3 py-3 sm:px-5 sm:py-4 lg:px-7 lg:py-5">
-        <div className="workspace mx-auto grid h-full w-full max-w-[1680px] grid-cols-1 gap-3 sm:gap-4 lg:min-h-0 lg:grid-cols-2">
+      <main className="relative flex min-h-0 flex-1 flex-col px-4 py-4 sm:px-6 lg:px-8">
+        <div className="workspace mx-auto grid h-full w-full max-w-[1440px] grid-cols-1 gap-3 sm:gap-4 lg:min-h-0 lg:grid-cols-2">
           <EditorPane
             value={markdown}
             onChange={setMarkdown}
@@ -100,9 +98,8 @@ export default function App() {
         </div>
       </main>
 
-      <footer className="no-print relative z-10 flex shrink-0 items-center justify-between gap-3 border-t border-line/80 px-3 py-2 text-[11px] text-faint sm:px-5 lg:px-7">
+      <footer className="no-print relative z-10 flex shrink-0 items-center border-t border-line/80 px-4 py-2 text-[11px] text-faint sm:px-6 lg:px-8">
         <span>© SA7</span>
-        <span className="hidden sm:inline">Markdown · GFM · LaTeX</span>
       </footer>
     </div>
   )
