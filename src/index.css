@@ -613,7 +613,6 @@
   }
 
   .no-print,
-  .app-glow,
   .preview-empty {
     display: none !important;
   }
