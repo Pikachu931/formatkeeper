@@ -91,6 +91,15 @@ export function splitMarkdown(source: string): MarkdownBlock[] {
       continue
     }
 
+    // A display equation opened by a standalone `$$` line (the form ChatGPT
+    // and most LaTeX sources emit) runs until the next `$$`, blank lines
+    // included.
+    if (line.trim() === '$$') {
+      inDisplayMath = true
+      current.push(line)
+      continue
+    }
+
     // A blank line inside `$$ ... $$` must not split the equation.
     if ((line.match(/\$\$/g) ?? []).length % 2 === 1) {
       inDisplayMath = true

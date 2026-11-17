@@ -1,15 +1,35 @@
+import { useState, type DragEvent } from 'react'
+
 type EditorPaneProps = {
   value: string
   onChange: (value: string) => void
   charCount: number
   wordCount: number
+  onFileDrop: (file: File) => void
 }
 
-export function EditorPane({ value, onChange, charCount, wordCount }: EditorPaneProps) {
+export function EditorPane({ value, onChange, charCount, wordCount, onFileDrop }: EditorPaneProps) {
+  const [dragging, setDragging] = useState(false)
+
+  const handleDrop = (event: DragEvent<HTMLElement>) => {
+    event.preventDefault()
+    setDragging(false)
+    const file = event.dataTransfer.files?.[0]
+    if (file) onFileDrop(file)
+  }
+
   return (
     <section
       aria-label="Markdown input"
-      className="editor-pane premium-panel no-print flex min-h-[44vh] min-w-0 flex-col overflow-hidden lg:min-h-0"
+      onDragOver={(event) => {
+        event.preventDefault()
+        setDragging(true)
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={handleDrop}
+      className={`editor-pane premium-panel no-print flex min-h-[44vh] min-w-0 flex-col overflow-hidden transition-shadow lg:min-h-0 ${
+        dragging ? 'ring-1 ring-accent/70' : ''
+      }`}
     >
       <div className="shrink-0 px-5 pt-4 pb-3 sm:px-6">
         <h2 className="display-face text-[21px] leading-none text-ink">Markdown</h2>
@@ -17,6 +37,7 @@ export function EditorPane({ value, onChange, charCount, wordCount }: EditorPane
       </div>
 
       <textarea
+        id="markdown-input"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder="Paste your ChatGPT or Gemini response here..."

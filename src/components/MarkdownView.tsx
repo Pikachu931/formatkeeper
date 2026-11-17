@@ -15,7 +15,9 @@ const components: Components = {
       <table {...props} />
     </div>
   ),
-  img: ({ node: _node, ...props }) => <img {...props} loading="lazy" decoding="async" />,
+  img: ({ node: _node, ...props }) => (
+    <img {...props} loading="lazy" decoding="async" referrerPolicy="no-referrer" />
+  ),
 }
 
 const remarkPlugins = [remarkGfm, remarkMath]

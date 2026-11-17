@@ -3,31 +3,29 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FormatKeeper — Preserve equations, tables &amp; formatting</title>
     <meta
       name="description"
-      content="FormatKeeper turns raw Markdown, GitHub-flavored tables, code blocks and LaTeX math into clean rich text you can paste straight into Google Docs, Word or Notion."
+      content="FormatKeeper turns raw Markdown, GitHub-flavored tables, code blocks and LaTeX math into clean rich text you can paste straight into Google Docs, Word or Notion — entirely in your browser."
     />
     <meta name="theme-color" content="#1b1d2e" />
     <meta name="author" content="SA7" />
     <meta name="copyright" content="SA7" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-      rel="stylesheet"
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="FormatKeeper — Markdown, GFM and LaTeX into clean rich text"
     />
-    <script>
-      ;(function () {
-        try {
-          var stored = localStorage.getItem('formatkeeper-theme')
-          var dark = stored ? stored === 'dark' : true
-          document.documentElement.classList.toggle('dark', dark)
-          document.documentElement.style.colorScheme = dark ? 'dark' : 'light'
-        } catch (e) {}
-      })()
-    </script>
+    <meta
+      property="og:description"
+      content="Paste Markdown, tables or equations, then copy formatted rich text into Google Docs, Word or Notion. Nothing leaves your browser."
+    />
+    <meta property="og:url" content="https://formatkeeper.vercel.app/" />
+    <meta name="twitter:card" content="summary" />
+    <script src="/theme-boot.js"></script>
   </head>
   <body>
     <div id="root"></div>
