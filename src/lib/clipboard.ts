@@ -15,9 +15,6 @@
  * would be unreadable.
  */
 
-/** Which editor the HTML is destined for. `auto` hedges for all of them. */
-export type PasteTarget = 'auto' | 'docs' | 'word' | 'notion'
-
 const INLINE_PROPS = [
   'color',
   'background-color',
@@ -162,25 +159,21 @@ function texOf(el: Element): string {
 /**
  * MathML for Word, TeX text for everyone else. The fallback carries
  * `mso-hide:all`, which Word honours and Docs/Notion ignore, so the equation is
- * never duplicated in Word and never lost in Docs. A known target can drop the
- * half that editor discards instead of relying on it to sanitize.
+ * never duplicated in Word and never lost in Docs.
  */
-function mathHtml(el: Element, target: PasteTarget): string {
+function mathHtml(el: Element): string {
   const tex = texOf(el)
   const mathml = el.querySelector('math')?.outerHTML ?? ''
   const fallback = tex ? `<span style="${MATH_FALLBACK_STYLE}">${escapeHtml(tex)}</span>` : ''
   const display = el.closest('.katex-display') !== null
 
-  const includeMathml = target !== 'docs' && target !== 'notion'
-  const includeFallback = target !== 'word'
-  const body = `${includeMathml ? mathml : ''}${includeFallback ? fallback : ''}`
-
-  if (!body) return tex ? escapeHtml(tex) : ''
-  if (display) return `<p style="margin:12px 0;text-align:center">${body}</p>`
-  return `<span style="vertical-align:baseline">${body}</span>`
+  if (display) {
+    return `<p style="margin:12px 0;text-align:center">${mathml}${fallback}</p>`
+  }
+  return `<span style="vertical-align:baseline">${mathml}${fallback}</span>`
 }
 
-function serialize(node: Node, preserveWhitespace: boolean, target: PasteTarget): string {
+function serialize(node: Node, preserveWhitespace = false): string {
   if (node.nodeType === Node.TEXT_NODE) {
     const text = node.textContent ?? ''
     // Outside <pre> the line breaks come from block boundaries, so collapsing
@@ -194,7 +187,7 @@ function serialize(node: Node, preserveWhitespace: boolean, target: PasteTarget)
   const tag = el.tagName
 
   if (SKIP_TAGS.has(tag)) return ''
-  if (el.classList.contains('katex')) return mathHtml(el, target)
+  if (el.classList.contains('katex')) return mathHtml(el)
   if (el.getAttribute('aria-hidden') === 'true') return ''
 
   if (tag === 'INPUT') {
@@ -257,7 +250,7 @@ function serialize(node: Node, preserveWhitespace: boolean, target: PasteTarget)
   }
 
   let inner = ''
-  for (const child of children) inner += serialize(child, preserve, target)
+  for (const child of children) inner += serialize(child, preserve)
 
   // Legacy attributes survive sanitizers that drop CSS borders entirely.
   if (tag === 'TABLE') {
@@ -270,7 +263,7 @@ function serialize(node: Node, preserveWhitespace: boolean, target: PasteTarget)
   return `<${name}${startAttr}${styleAttr}>${inner}</${name}>`
 }
 
-export function buildRichHtml(root: HTMLElement, target: PasteTarget = 'auto'): string {
+export function buildRichHtml(root: HTMLElement): string {
   root.classList.add('copy-light')
   try {
     // Force a synchronous style recalculation so `getComputedStyle` reflects
@@ -285,7 +278,7 @@ export function buildRichHtml(root: HTMLElement, target: PasteTarget = 'auto'): 
     ].join(';')
 
     let body = ''
-    for (const child of Array.from(root.childNodes)) body += serialize(child, false, target)
+    for (const child of Array.from(root.childNodes)) body += serialize(child)
 
     return [
       '<!DOCTYPE html><html><head><meta charset="utf-8"></head>',
@@ -397,11 +390,8 @@ function legacyCopy(html: string): boolean {
   return ok
 }
 
-export async function copyRichText(
-  root: HTMLElement,
-  target: PasteTarget = 'auto',
-): Promise<boolean> {
-  const html = buildRichHtml(root, target)
+export async function copyRichText(root: HTMLElement): Promise<boolean> {
+  const html = buildRichHtml(root)
   const text = buildPlainText(root)
 
   try {

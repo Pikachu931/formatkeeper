@@ -9,11 +9,3 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
-
-// Offline shell: registered in production builds only, so the dev server never
-// serves a cached bundle. A failed registration is non-fatal.
-if (import.meta.env.PROD && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    void navigator.serviceWorker.register('/sw.js').catch(() => {})
-  })
-}

@@ -1,15 +1,4 @@
-import {
-  Check,
-  Clipboard,
-  Download,
-  FolderOpen,
-  Layers,
-  Moon,
-  Printer,
-  Sparkles,
-  Sun,
-  Trash2,
-} from 'lucide-react'
+import { Check, Clipboard, Layers, Moon, Printer, Sparkles, Sun, Trash2 } from 'lucide-react'
 import type { Theme } from '../lib/theme'
 
 export type CopyState = 'idle' | 'copied' | 'error'
@@ -23,15 +12,13 @@ type HeaderProps = {
   onToggleTheme: () => void
   onCopy: () => void
   onPrint: () => void
-  onOpen: () => void
-  onSave: () => void
 }
 
 const ghostButton =
   'group inline-flex h-10 items-center justify-center gap-2 rounded-lg px-2.5 text-[12.5px] font-normal tracking-[0.01em] text-muted transition-colors duration-200 hover:bg-panel-soft hover:text-ink disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/50 sm:h-9'
 
 const iconButton =
-  'inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted transition-colors duration-200 hover:bg-panel-soft hover:text-ink disabled:pointer-events-none disabled:opacity-35 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/50 sm:h-9 sm:w-9'
+  'inline-flex h-10 w-10 items-center justify-center rounded-lg text-muted transition-colors duration-200 hover:bg-panel-soft hover:text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent/50 sm:h-9 sm:w-9'
 
 export function Header({
   hasContent,
@@ -42,8 +29,6 @@ export function Header({
   onToggleTheme,
   onCopy,
   onPrint,
-  onOpen,
-  onSave,
 }: HeaderProps) {
   const copied = copyState === 'copied'
   const failed = copyState === 'error'
@@ -57,27 +42,6 @@ export function Header({
         </div>
 
         <div className="flex w-full items-center gap-1 sm:w-auto">
-          <button
-            type="button"
-            onClick={onOpen}
-            aria-label="Open a Markdown file"
-            title="Open a Markdown file"
-            className={iconButton}
-          >
-            <FolderOpen className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
-          </button>
-
-          <button
-            type="button"
-            onClick={onSave}
-            disabled={!hasContent}
-            aria-label="Download Markdown"
-            title="Download Markdown"
-            className={iconButton}
-          >
-            <Download className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
-          </button>
-
           <button
             type="button"
             onClick={onSample}

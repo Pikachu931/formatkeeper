@@ -28,8 +28,3 @@ dev-server.log
 
 # local install log
 install.log
-
-# environment files — never commit secrets
-.env
-.env.*
-!.env.example
