@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { EditorPane } from './components/EditorPane'
 import { Header, type CopyState } from './components/Header'
-import { PreviewPane } from './components/PreviewPane'
+import { PreviewPane, type PreviewMode } from './components/PreviewPane'
 import { copyRichText } from './lib/clipboard'
 import { SAMPLE_MARKDOWN } from './lib/sample'
 import { applyTheme, readTheme, type Theme } from './lib/theme'
@@ -11,6 +11,9 @@ export default function App() {
   const [theme, setTheme] = useState<Theme>(readTheme)
   const [copyState, setCopyState] = useState<CopyState>('idle')
   const [generation, setGeneration] = useState(0)
+  // The default view keeps the pasted text byte-for-byte: line breaks, runs of
+  // spaces and every blank line render exactly as typed.
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('exact')
 
   const previewRef = useRef<HTMLDivElement>(null)
   const resetTimer = useRef<number | null>(null)
@@ -94,6 +97,8 @@ export default function App() {
             hasContent={hasContent}
             generation={generation}
             contentRef={previewRef}
+            previewMode={previewMode}
+            onPreviewModeChange={setPreviewMode}
           />
         </div>
       </main>

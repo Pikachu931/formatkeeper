@@ -9,11 +9,15 @@ const MarkdownView = lazy(() =>
   loadMarkdownView().then((module) => ({ default: module.MarkdownView })),
 )
 
+export type PreviewMode = 'exact' | 'formatted'
+
 type PreviewPaneProps = {
   markdown: string
   hasContent: boolean
   generation: number
   contentRef: React.RefObject<HTMLDivElement | null>
+  previewMode: PreviewMode
+  onPreviewModeChange: (mode: PreviewMode) => void
 }
 
 /** Scroll and quill, drawn as one ornamental line illustration. */
@@ -40,14 +44,21 @@ function PreviewSkeleton() {
   )
 }
 
+const MODES: { id: PreviewMode; label: string; hint: string }[] = [
+  { id: 'exact', label: 'Exact', hint: 'Show the text exactly as pasted, spaces and blank lines included' },
+  { id: 'formatted', label: 'Formatted', hint: 'Render headings, tables, code and math as markdown' },
+]
+
 export const PreviewPane = memo(function PreviewPane({
   markdown,
   hasContent,
   generation,
   contentRef,
+  previewMode,
+  onPreviewModeChange,
 }: PreviewPaneProps) {
-  // Warm the parser / KaTeX / highlighter while the page is idle so the first
-  // paste renders immediately instead of waiting on the chunk + dev transform.
+  // Warm the parser / KaTeX / highlighter while the page is idle so switching to
+  // the formatted view renders immediately instead of waiting on the chunk.
   useEffect(() => {
     const warm = () => {
       void loadMarkdownView()
@@ -61,20 +72,51 @@ export const PreviewPane = memo(function PreviewPane({
       aria-label="Formatted preview"
       className="preview-pane premium-panel flex min-h-[46vh] min-w-0 flex-col overflow-hidden lg:min-h-0"
     >
-      <div className="no-print shrink-0 px-5 pt-4 pb-3 sm:px-6">
-        <h2 className="display-face text-[21px] leading-none text-ink">Preview</h2>
-        <div className="pane-divider mt-3.5" aria-hidden="true" />
+      <div className="no-print flex shrink-0 items-start justify-between gap-3 px-5 pt-4 pb-3 sm:px-6">
+        <div className="min-w-0 flex-1">
+          <h2 className="display-face text-[21px] leading-none text-ink">Preview</h2>
+          <div className="pane-divider mt-3.5" aria-hidden="true" />
+        </div>
+
+        <div
+          role="group"
+          aria-label="Preview whitespace handling"
+          className="mt-0.5 flex shrink-0 items-center gap-0.5 rounded-lg border border-line bg-panel-soft p-0.5"
+        >
+          {MODES.map((mode) => (
+            <button
+              key={mode.id}
+              type="button"
+              aria-pressed={previewMode === mode.id}
+              title={mode.hint}
+              onClick={() => onPreviewModeChange(mode.id)}
+              className={`rounded-md px-2 py-1 text-[10.5px] font-medium transition-colors focus-visible:ring-1 focus-visible:ring-accent/60 focus-visible:outline-none ${
+                previewMode === mode.id
+                  ? 'bg-panel text-ink shadow-[0_1px_2px_rgb(0_0_0/0.08)]'
+                  : 'text-muted hover:text-ink'
+              }`}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="preview-scroll keeper-scroll relative min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto">
         {hasContent ? (
           <div
-            key={`${generation}-${hasContent}`}
+            key={`${generation}-${hasContent}-${previewMode}`}
             className="preview-body keeper-fade min-w-0 max-w-full px-5 py-5 sm:px-6 sm:py-6"
           >
-            <Suspense fallback={<PreviewSkeleton />}>
-              <MarkdownView markdown={markdown} contentRef={contentRef} />
-            </Suspense>
+            {previewMode === 'exact' ? (
+              <div ref={contentRef} className="md-body">
+                <div className="md-exact">{markdown}</div>
+              </div>
+            ) : (
+              <Suspense fallback={<PreviewSkeleton />}>
+                <MarkdownView markdown={markdown} contentRef={contentRef} />
+              </Suspense>
+            )}
           </div>
         ) : (
           <div className="preview-empty keeper-fade flex h-full min-h-[220px] flex-col items-center justify-center px-6 py-10 text-center">

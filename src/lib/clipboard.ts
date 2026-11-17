@@ -347,7 +347,11 @@ export function buildPlainText(root: HTMLElement): string {
     const block = BLOCK_TAGS.has(tag)
     if (block) chunks.push('\n')
 
-    const nextPreserve = preserve || tag === 'PRE'
+    // `white-space: pre-wrap` containers (the exact-text preview) must keep
+    // their literal spacing in the plain-text flavor too.
+    const computedWhiteSpace = window.getComputedStyle(el).getPropertyValue('white-space').trim()
+    const nextPreserve =
+      preserve || tag === 'PRE' || /^(pre|break-spaces)/.test(computedWhiteSpace)
     for (const child of Array.from(el.childNodes)) walk(child, nextPreserve)
 
     if (tag === 'TD' || tag === 'TH') chunks.push('\t')
