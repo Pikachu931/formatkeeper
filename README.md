@@ -53,3 +53,34 @@ npm run lint     # oxlint
   palette while serializing so pasted text stays readable on white documents.
 - Theme preference is stored under `formatkeeper-theme`; an inline bootstrap script applies it
   before first paint to avoid a flash of the wrong theme.
+
+## AI layout suggestions (Gemini)
+
+The **Analyze with AI** button in the Markdown pane posts the editor text to `POST /api/analyze`,
+a Vercel serverless function that asks Gemini for structured JSON (document type, title,
+sections, key highlights, tone and three style specs) and returns it sanitized. The key is read
+from `GEMINI_API_KEY` at runtime and never reaches the browser; the document is not stored.
+
+### Setup
+
+1. Create a key in Google AI Studio.
+2. **Local:** copy `.env.example` to `.env.local` and set `GEMINI_API_KEY=...`. Plain
+   `npm run dev` serves the UI only (Vite has no `/api`), so run `vercel dev` with the Vercel CLI
+   linked to the project to exercise the function. `GEMINI_MODEL` is optional and defaults to
+   `gemini-3.8-flash`.
+3. **Vercel:** Project → Settings → Environment Variables → add `GEMINI_API_KEY` for Production
+   and Preview, then redeploy (Deployments → Redeploy, or push a commit). Never prefix it with
+   `VITE_`; that would inline it into the browser bundle.
+4. `.env.local` and `.env*` are git-ignored; only `.env.example` is committed.
+
+### Behaviour
+
+- Input must be non-empty and at most 20,000 characters.
+- Rate limit: 12 analyses per IP per 10 minutes, per warm function instance (best-effort; add a
+  shared store such as Upstash if strict limits are needed).
+- Missing configuration, upstream 429s, timeouts and malformed JSON return friendly messages.
+- **Generate PDF** prints the AI-structured document with the chosen layout; pick “Save as PDF”
+  in the browser dialog. The stylesheet handles multiple pages, repeating table headers, colour
+  output and system fonts with Bengali fallbacks (`Noto Sans Bengali`, `Nirmala UI`, Vrinda).
+- `npm test` runs the validation, sanitizer, endpoint error-path and rate-limit checks without
+  calling Gemini.

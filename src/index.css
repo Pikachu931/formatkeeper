@@ -891,3 +891,56 @@
     print-color-adjust: exact;
   }
 }
+
+/* ---------------------------------------------------------------------------
+   AI document printing
+   The AI layout replaces the markdown preview for one print run: the app is
+   hidden, the styled document is revealed, and @page margins come from the
+   chosen style spec (injected by src/lib/ai-print.ts).
+--------------------------------------------------------------------------- */
+.ai-print {
+  display: none;
+}
+
+@media print {
+  body.ai-printing .app-root {
+    display: none !important;
+  }
+
+  body.ai-printing .ai-print {
+    display: block !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .ai-print section {
+    break-inside: auto;
+  }
+
+  .ai-print h1,
+  .ai-print h2 {
+    break-after: avoid;
+  }
+
+  .ai-print p,
+  .ai-print li {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .ai-print table {
+    break-inside: auto;
+  }
+
+  .ai-print tr {
+    break-inside: avoid;
+  }
+
+  .ai-print thead {
+    display: table-header-group;
+  }
+
+  .ai-print footer {
+    break-before: avoid;
+  }
+}
